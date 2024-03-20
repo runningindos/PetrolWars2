@@ -1,0 +1,8 @@
+{% extends "stations/base.html" %}
+    {% block content %} 
+    {% for stations in stations %}
+        <h1>{{ stations.station }}</h1>
+        <p>By {{ stations.name }} on {{ stations.date_created }}</p>
+        <p>{{ stations.location }}</p>
+    {% endfor %}
+    {% endblock content %}
