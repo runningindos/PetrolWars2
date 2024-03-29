@@ -3,6 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm
 import requests
+from django.http import JsonResponse
+from .utils import find_petrol_stations
 
 
 # Create your views here.
@@ -44,14 +46,11 @@ def profile(request):
 import requests
 
 def find_petrol_stations(location, radius=5000, keyword="petrol station"):
-    # Google Maps API endpoint for nearby search
     url = f"https://maps.googleapis.com/maps/api/place/nearbysearch/json?location={location}&radius={radius}&keyword={keyword}&key=YOUR_API_KEY"
 
-    # Making the request
     response = requests.get(url)
     data = response.json()
 
-    # Checking if the response was successful
     if data['status'] == 'OK':
         results = data['results']
         petrol_stations = []
@@ -66,8 +65,7 @@ def find_petrol_stations(location, radius=5000, keyword="petrol station"):
         print("Error:", data['status'])
         return None
 
-# Example usage
-location = "53.349805,-6.26031"  # Dublin, Ireland
+location = "53.349805,-6.26031"  
 petrol_stations = find_petrol_stations(location)
 if petrol_stations:
     for station in petrol_stations:
@@ -75,3 +73,8 @@ if petrol_stations:
         print("Location:", station['location'])
         print("Address:", station['vicinity'])
         print()
+
+def find_petrol_stations_view(request):
+    location = request.GET.get('location', '53.349805,-6.26031')  
+    petrol_stations = find_petrol_stations(location)
+    return JsonResponse({'petrol_stations': petrol_stations})
