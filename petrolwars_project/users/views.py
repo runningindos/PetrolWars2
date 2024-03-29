@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm
+import requests
+
 
 # Create your views here.
 def register(request):
@@ -39,3 +41,37 @@ def profile(request):
 
     return render(request, 'users/profile.html', context)
 
+import requests
+
+def find_petrol_stations(location, radius=5000, keyword="petrol station"):
+    # Google Maps API endpoint for nearby search
+    url = f"https://maps.googleapis.com/maps/api/place/nearbysearch/json?location={location}&radius={radius}&keyword={keyword}&key=YOUR_API_KEY"
+
+    # Making the request
+    response = requests.get(url)
+    data = response.json()
+
+    # Checking if the response was successful
+    if data['status'] == 'OK':
+        results = data['results']
+        petrol_stations = []
+        for place in results:
+            petrol_stations.append({
+                'name': place['name'],
+                'location': place['geometry']['location'],
+                'vicinity': place['vicinity']
+            })
+        return petrol_stations
+    else:
+        print("Error:", data['status'])
+        return None
+
+# Example usage
+location = "53.349805,-6.26031"  # Dublin, Ireland
+petrol_stations = find_petrol_stations(location)
+if petrol_stations:
+    for station in petrol_stations:
+        print("Name:", station['name'])
+        print("Location:", station['location'])
+        print("Address:", station['vicinity'])
+        print()
